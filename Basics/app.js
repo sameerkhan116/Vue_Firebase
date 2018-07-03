@@ -10,6 +10,8 @@ new Vue({
       x: 0,
       y: 0,
     },
+    showName: true,
+    items: ['Mushroom', 'Green Shells', 'Red Shells', 'Bananas', 'Star'],
   },
   methods: {
     greet(x) {
@@ -24,6 +26,16 @@ new Vue({
     logCoords(e) {
       this.coords.x = e.offsetX;
       this.coords.y = e.offsetY;
+    },
+    updateName(e) {
+      console.log(e.target.value);
+      this.name = e.target.value;
+    },
+    logMessage() {
+      console.log('Clicked');
+    },
+    toggleShowName() {
+      this.showName = !this.showName;
     },
   },
 });
