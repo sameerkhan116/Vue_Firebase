@@ -6,9 +6,10 @@
         <label for="title">Smoothie Title: </label>
         <input type="text" name="title" v-model="title">
       </div>
-      <div v-for="(ing, index) in ingredients" :key="index">
+      <div v-for="(ing, index) in ingredients" :key="index" class="field">
         <label for="ingredient">Ingredient: </label>
         <input type="text" name="ingredient" v-model="ingredients[index]">
+        <i class="material-icons delete" @click="deleteIngredient(ing)">delete</i>
       </div>
       <div class="field add-ingredient">
         <label for="add-ingredient">Add an ingredient: </label>
@@ -23,6 +24,9 @@
 </template>
 
 <script>
+import db from '@/firebase/init'
+import slugify from 'slugify'
+
 export default {
   name: 'AddSmoothie',
   data () {
@@ -30,12 +34,33 @@ export default {
       title: '',
       another: '',
       ingredients: [],
-      feedback: ''
+      feedback: '',
+      slug: ''
     }
   },
   methods: {
-    addSmoothie () {
-      console.log(this.title)
+    async addSmoothie () {
+      // console.log(this.title)
+      if (this.title) {
+        this.feedback = ''
+        this.slug = slugify(this.title, {
+          replacement: '-',
+          remove: /[$*_+~.()'"!\-:@]/g,
+          lower: true
+        })
+        try {
+          await db.collection('smoothies').add({
+            title: this.title,
+            ingredients: this.ingredients,
+            slug: this.slug
+          })
+          this.$router.push('/')
+        } catch (err) {
+          console.log(err)
+        }
+      } else {
+        this.feedback = 'You must enter a smoothie title.'
+      }
     },
     addIngredient () {
       if (this.another !== '') {
@@ -46,6 +71,9 @@ export default {
       } else {
         this.feedback = 'You must enter a value to add an ingredient!'
       }
+    },
+    deleteIngredient (ing) {
+      this.ingredients = this.ingredients.filter(x => x !== ing)
     }
   }
 }
@@ -63,8 +91,14 @@ export default {
 }
 .add-smoothie .field {
   margin: 20px auto;
+  position: relative;
 }
-.add-smoothie .ingredients li {
-  display: inline-block;
+.add-smoothie .delete {
+  position: absolute;
+  right: 0;
+  bottom: 16px;
+  color: #aaa;
+  font-size: 1.4em;
+  cursor: pointer;
 }
 </style>
