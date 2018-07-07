@@ -17,20 +17,36 @@
 </template>
 
 <script>
+import db from '@/firebase/init'
+
 export default {
   name: 'Index',
   data () {
     return {
-      smoothies: [
-        { title: 'Ninja Brew', slug: 'ninja-brew', ingredients: ['bananas', 'coffee', 'milk'], id: '1' },
-        { title: 'Morning Mood', slug: 'morning-mood', ingredients: ['mango', 'lime', 'juice'], id: '2' }
-      ]
+      smoothies: []
     }
   },
   methods: {
-    deleteSmoothie (id) {
-      this.smoothies = this.smoothies.filter(x => x.id !== id)
+    async deleteSmoothie (id) {
+      console.log(id)
+      try {
+        await db.collection('smoothies').doc(id).delete()
+        this.smoothies = this.smoothies.filter(smoothie => smoothie.id !== id)
+      } catch (err) {
+        console.log(err)
+      }
     }
+  },
+  created () {
+    // fetch data from firestore
+    db.collection('smoothies').get().then(snapshot => {
+      snapshot.forEach(x => {
+        // console.log(x.data())
+        let smoothie = x.data()
+        smoothie.id = x.id
+        this.smoothies.push(smoothie)
+      })
+    })
   }
 }
 </script>
