@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <Navbar />
+    <Navbar />yar
     <router-view/>
   </div>
 </template>
